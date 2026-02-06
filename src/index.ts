@@ -9,15 +9,15 @@ basekit.addDomainList([...feishuDm, 'api.example.com', '121.40.190.107', 'dashsc
 basekit.addField({
   authorizations: [
     {
-      id: 'auth_id_1',// 授权的id，用于context.fetch第三个参数以区分该请求使用哪个授权
-      platform: 'baidu',// 需要与之授权的平台,比如baidu(必须要是已经支持的三方凭证,不可随便填写,如果想要支持更多的凭证，请填写申请表单)
+      id: 'auth_id',// 授权的id，用于context.fetch第三个参数以区分该请求使用哪个授权
+      platform: '毛毛虫',// 需要与之授权的平台,比如baidu(必须要是已经支持的三方凭证,不可随便填写,如果想要支持更多的凭证，请填写申请表单)
       type: AuthorizationType.HeaderBearerToken,
       required: false,// 设置为选填，用户如果填了授权信息，请求中则会携带授权信息，否则不带授权信息
-      instructionsUrl: "https://www.saas.jcbbi.com/",// 帮助链接，告诉使用者如何填写这个apikey
-      label: '测试授权',
+      instructionsUrl: "https://www.mmcjt.cn/",// 帮助链接，告诉使用者如何填写这个apikey
+      label: '授权',
       icon: {
-        light: '',
-        dark: ''
+        light: 'https://saas.jcbbi.com/upload/2026/01/29/767965034025029.jpg',
+        dark: 'https://saas.jcbbi.com/upload/2026/01/29/767965034025029.jpg'
       }
     }
   ],
@@ -27,11 +27,26 @@ basekit.addField({
       'zh-CN': {
         "param_image_label": "图片",
         "param_prompt_label": "提示词",
+        "param_temperature_label": "Temperature",
+        "param_top_p_label": "topP",
+        "param_top_K_label": "topK",
+        "param_candidateCount_label": "candidateCount",
       },
     }
   },
   // 定义捷径的入参
   formItems: [
+    {
+      key: 'prompt',
+      label: t('param_prompt_label'),
+      component: FieldComponent.Input,
+      props: {
+        placeholder: '请输入图片编辑指令',
+      },
+      validator: {
+        required: true,
+      }
+    },
     {
       key: 'imageUrl1',
       label: `${t('param_image_label')}`,
@@ -44,14 +59,47 @@ basekit.addField({
       }
     },
     {
-      key: 'prompt',
-      label: t('param_prompt_label'),
+      key: 'temperature',
+      label: t('param_temperature_label'),
       component: FieldComponent.Input,
       props: {
-        placeholder: '请输入图片编辑指令',
+        placeholder: '请输入0.0-2.0之间数字',
       },
       validator: {
-        required: true,
+        required: false,
+      }
+    },
+    {
+      key: 'top_p',
+      label: t('param_top_p_label'),
+      component: FieldComponent.Input,
+      props: {
+        placeholder: '请输入0.0-1.0之间数字',
+      },
+      validator: {
+        required: false,
+      }
+    },
+    {
+      key: 'top_K',
+      label: t('param_top_K_label'),
+      component: FieldComponent.Input,
+      props: {
+        placeholder: '请输入10-100之间数字',
+      },
+      validator: {
+        required: false,
+      }
+    },
+    {
+      key: 'candidateCount',
+      label: t('param_candidateCount_label'),
+      component: FieldComponent.Input,
+      props: {
+        placeholder: '请输入1-8之间数字',
+      },
+      validator: {
+        required: false,
       }
     },
   ],
@@ -62,7 +110,7 @@ basekit.addField({
   // formItemParams 为运行时传入的字段参数，对应字段配置里的 formItems （如引用的依赖字段）
   execute: async (formItemParams, context) => {
     // 获取入参 - 开发者可以根据自己的字段配置获取相应参数
-    const { imageUrl1, prompt } = formItemParams;
+    const { imageUrl1, prompt, temperature, top_p, top_K, candidateCount } = formItemParams;
 
     /** 
      * 为方便查看日志，使用此方法替代console.log
@@ -90,7 +138,7 @@ basekit.addField({
 
       const headers = {
         'Content-Type': 'application/json',
-        'Authorization': 'Bearer 2O13DgDpmdia619m9c14E981149347068808B386A17bCbAb'
+        'Authorization': 'Bearer Bvvw1Y5LRwNnzTIe2446Ed1802E5472b81AaDdF0Cd3fBa3a'
       };
 
       // Build request payload
@@ -101,6 +149,10 @@ basekit.addField({
           "parts": []
         }],
         "generationConfig": {
+          "temperature": Number(temperature),
+          "topP": Number(top_p),
+          "topK": Number(top_K),
+          "candidateCount": Number(candidateCount),
           "responseModalities": ["TEXT"]
         }
       };
@@ -148,7 +200,7 @@ basekit.addField({
       // debugLog({ '===请求参数': JSON.stringify(requestBody, null, 2) });
 
       // 直接使用context.fetch
-      const res = await context.fetch(url, init,'auth_id_1');
+      const res = await context.fetch(url, init, 'auth_id');
       // debugLog({ '===响应内容': res });
       // debugLog({ '===响应状态': res.status });
 
