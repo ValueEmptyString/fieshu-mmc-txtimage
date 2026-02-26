@@ -27,10 +27,10 @@ basekit.addField({
       'zh-CN': {
         "param_image_label": "图片",
         "param_prompt_label": "提示词",
-        "param_temperature_label": "Temperature",
-        "param_top_p_label": "topP",
-        "param_top_K_label": "topK",
-        "param_candidateCount_label": "candidateCount",
+        // "param_temperature_label": "Temperature",
+        // "param_top_p_label": "topP",
+        // "param_top_K_label": "topK",
+        // "param_candidateCount_label": "candidateCount",
       },
     }
   },
@@ -58,50 +58,50 @@ basekit.addField({
         required: false,
       }
     },
-    {
-      key: 'temperature',
-      label: t('param_temperature_label'),
-      component: FieldComponent.Input,
-      props: {
-        placeholder: '请输入0.0-2.0之间数字',
-      },
-      validator: {
-        required: false,
-      }
-    },
-    {
-      key: 'top_p',
-      label: t('param_top_p_label'),
-      component: FieldComponent.Input,
-      props: {
-        placeholder: '请输入0.0-1.0之间数字',
-      },
-      validator: {
-        required: false,
-      }
-    },
-    {
-      key: 'top_K',
-      label: t('param_top_K_label'),
-      component: FieldComponent.Input,
-      props: {
-        placeholder: '请输入10-100之间数字',
-      },
-      validator: {
-        required: false,
-      }
-    },
-    {
-      key: 'candidateCount',
-      label: t('param_candidateCount_label'),
-      component: FieldComponent.Input,
-      props: {
-        placeholder: '请输入1-8之间数字',
-      },
-      validator: {
-        required: false,
-      }
-    },
+    // {
+    //   key: 'temperature',
+    //   label: t('param_temperature_label'),
+    //   component: FieldComponent.Input,
+    //   props: {
+    //     placeholder: '请输入0.0-2.0之间数字',
+    //   },
+    //   validator: {
+    //     required: false,
+    //   }
+    // },
+    // {
+    //   key: 'top_p',
+    //   label: t('param_top_p_label'),
+    //   component: FieldComponent.Input,
+    //   props: {
+    //     placeholder: '请输入0.0-1.0之间数字',
+    //   },
+    //   validator: {
+    //     required: false,
+    //   }
+    // },
+    // {
+    //   key: 'top_K',
+    //   label: t('param_top_K_label'),
+    //   component: FieldComponent.Input,
+    //   props: {
+    //     placeholder: '请输入10-100之间数字',
+    //   },
+    //   validator: {
+    //     required: false,
+    //   }
+    // },
+    // {
+    //   key: 'candidateCount',
+    //   label: t('param_candidateCount_label'),
+    //   component: FieldComponent.Input,
+    //   props: {
+    //     placeholder: '请输入1-8之间数字',
+    //   },
+    //   validator: {
+    //     required: false,
+    //   }
+    // },
   ],
   // 定义捷径的返回结果类型，返回文字
   resultType: {
@@ -110,7 +110,7 @@ basekit.addField({
   // formItemParams 为运行时传入的字段参数，对应字段配置里的 formItems （如引用的依赖字段）
   execute: async (formItemParams, context) => {
     // 获取入参 - 开发者可以根据自己的字段配置获取相应参数
-    const { imageUrl1, prompt, temperature, top_p, top_K, candidateCount } = formItemParams;
+    const { imageUrl1, prompt } = formItemParams;
 
     /** 
      * 为方便查看日志，使用此方法替代console.log
@@ -123,7 +123,7 @@ basekit.addField({
         return;
       }
       console.log(JSON.stringify({
-        formItemParams,
+        formItemParams, 
         context,
         arg
       }), '\n');
@@ -136,9 +136,10 @@ basekit.addField({
       // 1. 调用Gemini API
       const url = 'https://api.ezlinkai.com/v1beta/models/gemini-3-pro-preview:generateContent';
 
+      // 飞书公共插件
       const headers = {
         'Content-Type': 'application/json',
-        'Authorization': 'Bearer Bvvw1Y5LRwNnzTIe2446Ed1802E5472b81AaDdF0Cd3fBa3a'
+        // 'Authorization': 'Bearer 3lbdC51aWu9RUL6gFa3fFaCcA50b47EaB8B893DeCfEc6716'
       };
 
       // Build request payload
@@ -149,10 +150,10 @@ basekit.addField({
           "parts": []
         }],
         "generationConfig": {
-          "temperature": Number(temperature),
-          "topP": Number(top_p),
-          "topK": Number(top_K),
-          "candidateCount": Number(candidateCount),
+          // "temperature": Number(temperature),
+          // "topP": Number(top_p),
+          // "topK": Number(top_K),
+          // "candidateCount": Number(candidateCount),
           "responseModalities": ["TEXT"]
         }
       };
@@ -207,7 +208,7 @@ basekit.addField({
       // 2. 处理响应
       try {
         const resJson = await res.json();
-        debugLog({ '===完整响应': JSON.stringify(resJson) });
+        // debugLog({ '===完整响应': JSON.stringify(resJson) });
 
         // 解析响应，获取文字结果
         let resultText = '';
@@ -215,17 +216,11 @@ basekit.addField({
         // 检查candidates是否存在
         if (resJson.candidates && Array.isArray(resJson.candidates) && resJson.candidates.length > 0) {
           const candidate = resJson.candidates[0];
-          debugLog({ '===candidate': JSON.stringify(candidate) });
-
           // 检查content
           if (candidate.content) {
             const content = candidate.content;
-            debugLog({ '===content': JSON.stringify(content) });
-
             // 检查parts
             if (content.parts && Array.isArray(content.parts)) {
-              debugLog({ '===parts数量': content.parts.length });
-
               // 查找text类型的content
               for (const part of content.parts) {
                 if (part.text) {
